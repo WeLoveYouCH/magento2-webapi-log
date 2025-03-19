@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template
+        id="webapi_email_notifier_email_template"
+        label="Web API Email Notification"
+        file="web_api_error.html"
+        type="html"
+        module="VladFlonta_WebApiLog"
+        area="frontend"
+    />
+</config>

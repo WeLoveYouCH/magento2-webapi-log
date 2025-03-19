@@ -8,46 +8,35 @@
 
 namespace VladFlonta\WebApiLog\Plugin\Rest;
 
+use Exception;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Webapi\Controller\Rest;
+use Psr\Log\LoggerInterface;
+use VladFlonta\WebApiLog\Logger\Handler;
+use VladFlonta\WebApiLog\Model\Config;
+use VladFlonta\WebApiLog\Model\Service\Resolver;
+use Magento\Framework\MessageQueue\PublisherInterface;
+
 class Api
 {
-    /** @var \VladFlonta\WebApiLog\Logger\Handler */
-    protected $apiLogger;
-
-    /** @var \VladFlonta\WebApiLog\Model\Config */
-    protected $config;
-
-    /** @var \Psr\Log\LoggerInterface */
-    protected $logger;
-
-    /** @var array */
-    protected $currentRequest;
-
-    /** @var \Magento\Framework\App\RequestInterface */
-    protected $request;
-
-    /** @var \VladFlonta\WebApiLog\Model\Service\Resolver */
-    protected $serviceResolver;
-
     /**
      * Rest constructor.
-     * @param \Psr\Log\LoggerInterface $logger
-     * @param \VladFlonta\WebApiLog\Model\Config $config
-     * @param \VladFlonta\WebApiLog\Logger\Handler $apiLogger
-     * @param \Magento\Framework\App\RequestInterface $request
-     * @param \VladFlonta\WebApiLog\Model\Service\Resolver $serviceResolver
+     * @param LoggerInterface $logger
+     * @param Config $config
+     * @param Handler $apiLogger
+     * @param RequestInterface $request
+     * @param Resolver $serviceResolver
+     * @param PublisherInterface $publisher
      */
     public function __construct(
-        \Psr\Log\LoggerInterface $logger,
-        \VladFlonta\WebApiLog\Model\Config $config,
-        \VladFlonta\WebApiLog\Logger\Handler $apiLogger,
-        \Magento\Framework\App\RequestInterface $request,
-        \VladFlonta\WebApiLog\Model\Service\Resolver $serviceResolver
+        private readonly LoggerInterface $logger,
+        private readonly Config $config,
+        private readonly Handler $apiLogger,
+        private readonly RequestInterface $request,
+        private readonly Resolver $serviceResolver,
+        private readonly PublisherInterface $publisher
     ) {
-        $this->logger = $logger;
-        $this->config = $config;
-        $this->request = $request;
-        $this->apiLogger = $apiLogger;
-        $this->serviceResolver = $serviceResolver;
     }
 
     /**
@@ -137,6 +126,47 @@ class Api
             $this->apiLogger->debug('', $this->currentRequest);
         } catch (\Exception $exception) {
             $this->logger->debug('Exception when logging API response: ' . $exception->getMessage());
+        }
+
+        return $result;
+    }
+
+    /**
+     * Plugin after REST API dispatch - send email after exception
+     *
+     * @param Rest $subject
+     * @param ResponseInterface $result
+     * @param RequestInterface $request
+     * @return ResponseInterface
+     */
+    public function afterDispatch(
+        Rest $subject,
+        ResponseInterface $result,
+        RequestInterface $request
+    ): ResponseInterface {
+        if (!$this->config->isEmailNotificationEnabled() || $this->serviceResolver->isExcluded()) {
+            return $result;
+        }
+
+        $exceptions = $result->getException();
+
+        if (!empty($exceptions)) {
+            try {
+                foreach ($exceptions as $exception) {
+                    $errorData = [
+                        'error_code' => method_exists($exception, 'getHttpCode') ? $exception->getHttpCode() : 500,
+                        'error_content' => $exception->getMessage(),
+                        'details' => $exception->getTraceAsString(),
+                        'url' => $request->getRequestUri()
+                    ];
+
+                    $this->publisher->publish('webapi.error', json_encode($errorData));
+                }
+            } catch (Exception $e) {
+                $this->logger->error(
+                    __('Error occurred while trying to send web API error notification: ' . $e->getMessage(), $e)
+                );
+            }
         }
 
         return $result;

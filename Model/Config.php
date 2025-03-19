@@ -11,6 +11,9 @@ namespace VladFlonta\WebApiLog\Model;
 class Config
 {
     const XML_PATH_WEBAPI_LOGGER = 'webapi/logger/';
+    private const XML_PATH_NOTIFICATION_ENABLED = 'webapi/email_notifier/enable';
+    private const XML_PATH_EMAIL_RECIPIENTS = 'webapi/email_notifier/recipients';
+    private const XML_PATH_EMAIL_TEMPLATE = 'webapi/email_notifier/email_template';
 
     /** @var \Magento\Framework\App\Config\ScopeConfigInterface */
     protected $scopeConfig;
@@ -50,5 +53,35 @@ class Config
     public function getEnable()
     {
         return (bool) $this->scopeConfig->getValue(self::XML_PATH_WEBAPI_LOGGER.'enable', 'store');
+    }
+
+    /**
+     * Check if email notification is enabled
+     *
+     * @return bool
+     */
+    public function isEmailNotificationEnabled(): bool
+    {
+        return $this->scopeConfig->isSetFlag(self::XML_PATH_NOTIFICATION_ENABLED);
+    }
+
+    /**
+     * Get email recipients configuration
+     *
+     * @return array
+     */
+    public function getEmailRecipients(): array
+    {
+        return explode(PHP_EOL, $this->scopeConfig->getValue(self::XML_PATH_EMAIL_RECIPIENTS));
+    }
+
+    /**
+     * Get email template configuration
+     *
+     * @return string
+     */
+    public function getEmailTemplate(): string
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_EMAIL_TEMPLATE);
     }
 }

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/topology.xsd">
+    <exchange name="webapi_error_exchange" type="topic" connection="amqp">
+        <binding id="webapi_error_binding" topic="webapi.error" destinationType="queue" destination="webapi_error_queue"/>
+    </exchange>
+</config>

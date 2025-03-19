@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="email_web_api_error" resource="default" comment="Web API Error Table">
+        <column xsi:type="int" name="entity_id" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column xsi:type="varchar" name="error_code" nullable="false" length="255" comment="Error Code"/>
+        <column xsi:type="text" name="error_content" nullable="false" comment="Error Content"/>
+        <column xsi:type="text" name="details" nullable="true" comment="Details"/>
+        <column xsi:type="varchar" name="url" nullable="false" length="255" comment="URL"/>
+        <column xsi:type="int" name="count" nullable="false" default="1" comment="Error Count"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false" default="CURRENT_TIMESTAMP" comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+    </table>
+</schema>
