@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author DrdLab Team
+ * @package VladFlonta_WebApiLog
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="admin">
+        <route id="vladflonta_webapilog" frontName="vladflonta_webapilog">
+            <module name="VladFlonta_WebApiLog"/>
+        </route>
+    </router>
+</config>

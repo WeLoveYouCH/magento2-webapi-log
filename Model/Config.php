@@ -45,6 +45,22 @@ class Config
     }
 
     /**
+     * @return int
+     */
+    public function getKeepDays()
+    {
+        return (int)$this->scopeConfig->getValue(self::XML_PATH_WEBAPI_LOGGER.'keep_days', 'store');
+    }
+
+    /**
+     * @return int
+     */
+    public function getFolderDepth()
+    {
+        return (int)$this->scopeConfig->getValue(self::XML_PATH_WEBAPI_LOGGER.'folder_depth', 'store');
+    }
+
+    /**
      * @return boolean
      */
     public function getEnable()

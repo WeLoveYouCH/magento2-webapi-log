@@ -13,6 +13,8 @@
             <logger>
                 <enable>1</enable>
                 <save_path>webapi_rest</save_path>
+                <keep_days>30</keep_days>
+                <folder_depth>3</folder_depth>
             </logger>
         </webapi>
     </default>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author DrdLab Team
+ * @package VladFlonta_WebApiLog
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+	
+		<add id="VladFlonta_WebApiLog::menu" title="API Logs" translate="title" module="VladFlonta_WebApiLog" sortOrder="70" parent="Magento_Backend::system" resource="VladFlonta_WebApiLog::menu"/>		
+		
+		<add id="VladFlonta_WebApiLog::logs" title="Web API REST logs" module="VladFlonta_WebApiLog" sortOrder="10" parent="VladFlonta_WebApiLog::menu" action="vladflonta_webapilog/logs" resource="VladFlonta_WebApiLog::logs"/>
+
+		<add id="VladFlonta_WebApiLog::settings" title="Settings" translate="title" module="VladFlonta_WebApiLog" sortOrder="20" parent="VladFlonta_WebApiLog::menu" action="adminhtml/system_config/edit/section/webapi" resource="VladFlonta_WebApiLog::settings"/>			
+    </menu>
+</config>

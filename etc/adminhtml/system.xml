@@ -20,7 +20,15 @@
                     <label>Save path</label>
                     <comment><![CDATA[Path is relative to <em>var/log/</em>.]]></comment>
                 </field>
-                <field id="exclude_services" translate="label comment" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="keep_days" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Days to keep</label>
+                    <comment><![CDATA[Days of logs to keep when clearing existing files.]]></comment>
+                </field>
+                <field id="folder_depth" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Folder levels</label>
+                    <comment><![CDATA[Number of depth levels to inspect in delete logs page.]]></comment>
+                </field>
+                <field id="exclude_services" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Disable logging services</label>
                     <source_model>VladFlonta\WebApiLog\Model\Config\Source\Services</source_model>
                     <comment>Web API REST services which would not be logged.</comment>
