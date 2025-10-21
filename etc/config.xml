@@ -14,6 +14,11 @@
                 <enable>1</enable>
                 <save_path>webapi_rest</save_path>
             </logger>
+            <email_notifier>
+                <enable>0</enable>
+                <email_template>webapi_email_notifier_email_template</email_template>
+                <cron_schedule>*/15 * * * *</cron_schedule>
+            </email_notifier>
         </webapi>
     </default>
 </config>

@@ -10,6 +10,7 @@ namespace VladFlonta\WebApiLog\Plugin\Rest;
 
 use Magento\Integration\Api\OauthServiceInterface;
 use Magento\Integration\Api\IntegrationServiceInterface;
+use Magento\Framework\MessageQueue\PublisherInterface;
 
 class Api
 {
@@ -37,6 +38,9 @@ class Api
     /** @var IntegrationServiceInterface */
     protected $integrationService;
 
+    /** @var PublisherInterface */
+    private  $publisher;
+
     /**
      * Rest constructor.
      * @param \Psr\Log\LoggerInterface $logger
@@ -44,6 +48,7 @@ class Api
      * @param \VladFlonta\WebApiLog\Logger\Handler $apiLogger
      * @param \Magento\Framework\App\RequestInterface $request
      * @param \VladFlonta\WebApiLog\Model\Service\Resolver $serviceResolver
+     *  @param PublisherInterface $publisher
      */
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
@@ -52,7 +57,8 @@ class Api
         \Magento\Framework\App\RequestInterface $request,
         \VladFlonta\WebApiLog\Model\Service\Resolver $serviceResolver,
         OauthServiceInterface $oauthServiceInterface,
-        IntegrationServiceInterface $integrationServiceInterface
+        IntegrationServiceInterface $integrationServiceInterface,
+        PublisherInterface $publisher
     ) {
         $this->logger = $logger;
         $this->config = $config;
@@ -61,6 +67,7 @@ class Api
         $this->serviceResolver = $serviceResolver;
         $this->oauthService = $oauthServiceInterface;
         $this->integrationService = $integrationServiceInterface;
+        $this->publisher = $publisher;
     }
 
     /**
@@ -156,6 +163,47 @@ class Api
     }
 
     /**
+     * Plugin after REST API dispatch - send email after exception
+     *
+     * @param Rest $subject
+     * @param ResponseInterface $result
+     * @param RequestInterface $request
+     * @return ResponseInterface
+     */
+    public function afterDispatch(
+        Rest $subject,
+        ResponseInterface $result,
+        RequestInterface $request
+    ): ResponseInterface {
+        if (!$this->config->isEmailNotificationEnabled() || $this->serviceResolver->isExcluded()) {
+            return $result;
+        }
+
+        $exceptions = $result->getException();
+
+        if (!empty($exceptions)) {
+            try {
+                foreach ($exceptions as $exception) {
+                    $errorData = [
+                        'error_code' => method_exists($exception, 'getHttpCode') ? $exception->getHttpCode() : 500,
+                        'error_content' => $exception->getMessage(),
+                        'details' => $exception->getTraceAsString(),
+                        'url' => $request->getRequestUri()
+                    ];
+
+                    $this->publisher->publish('webapi.error', json_encode($errorData));
+                }
+            } catch (Exception $e) {
+                $this->logger->error(
+                    __('Error occurred while trying to send web API error notification: ' . $e->getMessage(), $e)
+                );
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * @param string $path
      * @return bool
      */
@@ -194,7 +242,7 @@ class Api
             $consumer = $this->oauthService->loadConsumerByKey($consumerKey);
             /** @var \Magento\Integration\Model\Integration $integration */
             $integration = $this->integrationService->findByConsumerId($consumer->getId());
-    
+
             return ' ('.$integration->getName().')';
         }catch(\Exception $e){
             $this->logger->error($e->getMessage(), ['request_header' => $requestHeader]);

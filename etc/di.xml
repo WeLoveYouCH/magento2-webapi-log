@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <type name="Magento\Framework\EntityManager\MetadataPool">
+        <arguments>
+            <argument name="metadata" xsi:type="array">
+                <item name="VladFlonta\WebApiLog\Api\Data\WebApiErrorInterface" xsi:type="array">
+                    <item name="entityTableName" xsi:type="string">email_web_api_error</item>
+                    <item name="identifierField" xsi:type="string">entity_id</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="VladFlonta\WebApiLog\Cron\SendEmail">
+        <arguments>
+            <argument name="mail" xsi:type="object">VladFlonta\WebApiLog\Model\Email</argument>
+        </arguments>
+    </type>
+    <preference for="Magento\Framework\Mail\Template\TransportBuilder"
+                type="VladFlonta\WebApiLog\Model\Mail\Template\TransportBuilder" />
+</config>

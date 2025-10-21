@@ -31,6 +31,28 @@
                     <comment>If the request is made via OAuth, record the name of the intregation the request is associated with.</comment>
                 </field>
             </group>
+            <group id="email_notifier" translate="label" type="text" sortOrder="100" showInDefault="1"
+                   showInWebsite="0" showInStore="0">
+                <label>Web API Email Notifier</label>
+                <field id="enable" translate="label" type="select" sortOrder="10" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="recipients" translate="label comment" type="textarea" sortOrder="20" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Recipients</label>
+                    <comment>One line is one email address</comment>
+                </field>
+                <field id="email_template" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Email Template</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+                <field id="cron_schedule" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Cron Schedule</label>
+                    <comment>Specify cron expression (e.g., */15 * * * *)</comment>
+                </field>
+            </group>
         </section>
     </system>
 </config>
