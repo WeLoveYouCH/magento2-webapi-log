@@ -1,0 +1,33 @@
+<?php
+/**
+ * @author DrdLab Team
+ * @package VladFlonta_WebApiLog
+*/
+
+
+/**
+ * @var $block \VladFlonta\WebApiLog\Block\Adminhtml\Tree
+ */
+?>
+
+<?= $block->getChildHtml() ?>
+<?= $block->getBlockHtml('formkey') ?>
+
+<div class="admin__scope-old">
+    <fieldset class="fieldset form-inline entry-edit">
+        <div class="field" data-role="tree-resources-container">
+            <label class="label"><span><?= $block->escapeHtml(__('Resources')) ?></span></label>
+
+            <div class="control">
+                <div class="tree x-tree" data-role="resource-tree" data-mage-init='<?=
+                    $block->escapeHtmlAttr($block->getJsonSerializer()->serialize([
+                        'resourceTree' => [
+                            "treeInitData" => $block->getTree(),
+                            'clearFormSelector' => '#edit_form'
+                        ],
+                    ])); ?>'>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
