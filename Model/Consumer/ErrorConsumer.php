@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace VladFlonta\WebApiLog\Model\Consumer;
 
-use VladFlonta\WebApiLog\Model\ResourceModel\WebApiError;
+use Exception;
 use Psr\Log\LoggerInterface;
+use VladFlonta\WebApiLog\Model\ResourceModel\WebApiError;
 
 class ErrorConsumer
 {
@@ -25,7 +26,7 @@ class ErrorConsumer
      */
     public function __construct(
         WebApiError $errorResourceModel,
-        LoggerInterface $logger,
+        LoggerInterface $logger
     ) {
         $this->errorResourceModel = $errorResourceModel;
         $this->logger = $logger;
@@ -67,7 +68,7 @@ class ErrorConsumer
                     'count' => 1,
                 ]);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error(__('Error occurred while processing web API error: ' . $e->getMessage(), $e));
         }
     }

@@ -7,11 +7,19 @@
 
 namespace VladFlonta\WebApiLog\Block\Adminhtml;
 
+use Magento\Backend\Block\Template;
+use Magento\Backend\Block\Template\Context;
 use Magento\Catalog\Model\ResourceModel\Category\Collection;
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Framework\Data\Form\Element\Renderer\RendererInterface;
 use Magento\Framework\Data\Tree\Node;
+use Magento\Framework\Filesystem;
 use Magento\Store\Model\Store;
+use VladFlonta\WebApiLog\Model\Config;
+use VladFlonta\WebApiLog\ViewModel\JsonSerializer;
 
-class Tree extends \Magento\Backend\Block\Template implements \Magento\Framework\Data\Form\Element\Renderer\RendererInterface
+class Tree extends Template implements RendererInterface
 {
 
     const LIMIT = 1000;
@@ -21,20 +29,21 @@ class Tree extends \Magento\Backend\Block\Template implements \Magento\Framework
      */
     protected $_template = 'VladFlonta_WebApiLog::tree.phtml';
 
-    protected $_rootPath;
-    protected $_rootFolder;
-    protected $_jsonSerializer;
-    protected $_config;
+    protected string $_rootPath;
+    protected string $_rootFolder;
+    protected JsonSerializer $_jsonSerializer;
+    protected Config $_config;
+    private AbstractElement $_element;
 
     public function __construct(
-        \Magento\Backend\Block\Template\Context $context,
-        \VladFlonta\WebApiLog\Model\Config $config,
-        \Magento\Framework\Filesystem $fileSystem,
-        \VladFlonta\WebApiLog\ViewModel\JsonSerializer $jsonSerializer,
+        Context $context,
+        Config $config,
+        Filesystem $fileSystem,
+        JsonSerializer $jsonSerializer,
         array $data = []
     ) {
         $filePath = $fileSystem
-        ->getDirectoryRead(\Magento\Framework\App\Filesystem\DirectoryList::LOG)
+        ->getDirectoryRead(DirectoryList::LOG)
         ->getAbsolutePath();
 
         $this->_rootPath = $filePath;
@@ -45,34 +54,33 @@ class Tree extends \Magento\Backend\Block\Template implements \Magento\Framework
         parent::__construct($context, $data);
     }
 
-    public function getElement()
+    public function getElement(): AbstractElement
     {
-        $element = $this->_element;
         return $this->_element;
     }
-    
-    public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+
+    public function render(AbstractElement $element): string
     {
         $this->_element = $element;
         return $this->toHtml();
     }
-    
+
     /**
      * Get Json Representation of Resource Tree
      *
      * @return array
      */
-    public function getTree()
+    public function getTree(): array
     {
         $arrNodes = array($this->readNodes($this->_rootFolder));
 
-        return $this->mapResources($arrNodes, array());
+        return $this->mapResources($arrNodes);
     }
 
-    private function readNodes($folder, $depth = 1)
+    private function readNodes($folder, $depth = 1): array
     {
         $currentPath = $this->_rootPath . DIRECTORY_SEPARATOR . $folder;
-        
+
         $exp = explode("/", $folder);
         $title = $exp[count($exp) - 1];
         $node = array (
@@ -96,10 +104,10 @@ class Tree extends \Magento\Backend\Block\Template implements \Magento\Framework
                 }
                 closedir($dh);
             }
-            
+
             sort($files);
 
-            foreach ($files as $key => $value) {
+            foreach ($files as $value) {
                 if(is_dir($this->_rootPath . DIRECTORY_SEPARATOR . $folder. DIRECTORY_SEPARATOR . $value)){
                     $node["children"][] = $this->readNodes($folder. DIRECTORY_SEPARATOR . $value, ($depth+1));
                 }
@@ -118,7 +126,7 @@ class Tree extends \Magento\Backend\Block\Template implements \Magento\Framework
      * @param array $selectedResources
      * @return array
      */
-    private function mapResources(array $resources, array $selectedResources = [])
+    private function mapResources(array $resources, array $selectedResources = []): array
     {
         $output = [];
         foreach ($resources as $resource) {
@@ -137,8 +145,9 @@ class Tree extends \Magento\Backend\Block\Template implements \Magento\Framework
         return $output;
     }
 
-    public function getJsonSerializer() {
+    public function getJsonSerializer(): JsonSerializer
+    {
         return $this->_jsonSerializer;
     }
-    
+
 }

@@ -8,20 +8,24 @@
 
 namespace VladFlonta\WebApiLog\Model\Config\Source;
 
-class Services implements \Magento\Framework\Option\ArrayInterface
+use Magento\Framework\Option\ArrayInterface;
+use Magento\Webapi\Model\Config;
+use Magento\Webapi\Model\Config\Converter;
+
+class Services implements ArrayInterface
 {
-    /** @var \Magento\Webapi\Model\Config */
-    protected $config;
+    /** @var Config */
+    protected Config $config;
 
     /** @var array */
-    protected $options;
+    protected array $options;
 
     /**
      * Services constructor.
-     * @param \Magento\Webapi\Model\Config $config
+     * @param Config $config
      */
     public function __construct(
-        \Magento\Webapi\Model\Config $config
+        Config $config
     ) {
         $this->config = $config;
     }
@@ -31,7 +35,7 @@ class Services implements \Magento\Framework\Option\ArrayInterface
      *
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         return $this->getOptionsArray($this->getOptions());
     }
@@ -41,7 +45,7 @@ class Services implements \Magento\Framework\Option\ArrayInterface
      *
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return $this->getOptions();
     }
@@ -49,12 +53,12 @@ class Services implements \Magento\Framework\Option\ArrayInterface
     /**
      * @return array
      */
-    protected function getOptions()
+    protected function getOptions(): array
     {
         if (!isset($this->options)) {
             $this->options = [];
             $this->options[(string)__('-- None --')] = '';
-            $options = $this->config->getServices()[\Magento\Webapi\Model\Config\Converter::KEY_ROUTES];
+            $options = $this->config->getServices()[Converter::KEY_ROUTES];
             foreach ($options as $route => $methods) {
                 $label = trim(ucwords(preg_replace('/^\/([^\/]+)\/([^\/]+).*/', '$1 $2', $route)));
                 $this->options[$label][$route] = trim($route, '/');
@@ -68,7 +72,7 @@ class Services implements \Magento\Framework\Option\ArrayInterface
      * @param array $options
      * @return array
      */
-    protected function getOptionsArray(array $options)
+    protected function getOptionsArray(array $options): array
     {
         $optionArray = [];
         foreach ($options as $label => $value) {

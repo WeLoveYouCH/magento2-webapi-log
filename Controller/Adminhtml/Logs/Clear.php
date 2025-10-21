@@ -5,10 +5,18 @@
  */
 namespace VladFlonta\WebApiLog\Controller\Adminhtml\Logs;
 
-use Magento\Backend\App\Action;
+use Exception;
 use Magento\Authorization\Model\Acl\Role\Group as RoleGroup;
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Backend\Model\View\Result\Redirect;
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Filesystem;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use VladFlonta\WebApiLog\Model\Config;
 
-class Clear extends \Magento\Backend\App\Action
+class Clear extends Action
 {
     /**
      * Authorization level of a basic admin session
@@ -17,25 +25,25 @@ class Clear extends \Magento\Backend\App\Action
      */
     const ADMIN_RESOURCE = 'VladFlonta_WebApiLog::logs';
 
-    protected $_rootPath;
-    protected $_rootFolder;
+    protected string $_rootPath;
+    protected string $_rootFolder;
 
-    protected $_config;
+    protected Config $_config;
 
     /**
-     * @param \Magento\Backend\App\Action\Context $context
-     * @param \VladFlonta\WebApiLog\Model\Config $config
-     * @param \Magento\Framework\Filesystem $fileSystem
+     * @param Context $context
+     * @param Config $config
+     * @param Filesystem $fileSystem
      */
     public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        \VladFlonta\WebApiLog\Model\Config $config,
-        \Magento\Framework\Filesystem $fileSystem
+        Context $context,
+        Config $config,
+        Filesystem $fileSystem
     ) {
         parent::__construct($context);
 
         $filePath = $fileSystem
-        ->getDirectoryRead(\Magento\Framework\App\Filesystem\DirectoryList::LOG)
+        ->getDirectoryRead(DirectoryList::LOG)
         ->getAbsolutePath();
 
         $this->_rootPath = $filePath;
@@ -46,23 +54,23 @@ class Clear extends \Magento\Backend\App\Action
     /**
      * Role form submit action to save or create new role
      *
-     * @return \Magento\Backend\Model\View\Result\Redirect
+     * @return Redirect
      */
-    public function execute()
+    public function execute(): Redirect
     {
-        /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
+        /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultRedirectFactory->create();
-        
+
         $resource = $this->getRequest()->getParam('resource', false);
 
         try {
-            foreach ($resource as $key => $folder) {
+            foreach ($resource as $folder) {
                 if(is_dir($this->_rootPath . DIRECTORY_SEPARATOR . $folder)) {
                     $this->removeDir($this->_rootPath . DIRECTORY_SEPARATOR . $folder, $this->getRequest()->getParam('keep_logs', false));
                 }
             }
             $this->messageManager->addSuccessMessage(__('Logs cleared.'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->messageManager->addErrorMessage(__('An error occurred while deleting log files.') . " - " . $e->getMessage());
         }
 
@@ -70,19 +78,17 @@ class Clear extends \Magento\Backend\App\Action
     }
 
     protected function removeDir(string $dir, bool $keepLogs = false) {
-        $it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $files = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
+        $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+        $files = new RecursiveIteratorIterator($it, RecursiveIteratorIterator::CHILD_FIRST);
 
         $startDate = strtotime("-" . $this->_config->getKeepDays() ." day");
         foreach($files as $file) {
-            if($keepLogs && filectime($file->getPathname()) >= $startDate) {
-                //var_dump("KEEP FILE - " . $file->getPathname());
-            } else {
+            if(!$keepLogs || filectime($file->getPathname()) < $startDate) {
                 if ($file->isDir()) {
                     try {
                         rmdir($file->getPathname());
-                    } catch (\Exception $e) {
-                        if(strpos($e->getMessage(), 'Directory not empty') === false) {
+                    } catch (Exception $e) {
+                        if (strpos($e->getMessage(), 'Directory not empty') === false) {
                             throw $e;
                         }
                     }
@@ -92,13 +98,11 @@ class Clear extends \Magento\Backend\App\Action
             }
         }
 
-        if($keepLogs && filectime($dir) >= $startDate) {
-            //var_dump("KEEP DIR - " . $file->getPathname());
-        } else {
+        if(!$keepLogs || filectime($dir) < $startDate) {
             try {
                 rmdir($dir);
-            } catch (\Exception $e) {
-                if(strpos($e->getMessage(), 'Directory not empty') === false) {
+            } catch (Exception $e) {
+                if (strpos($e->getMessage(), 'Directory not empty') === false) {
                     throw $e;
                 }
             }
@@ -107,10 +111,8 @@ class Clear extends \Magento\Backend\App\Action
 
     /**
      * Preparing layout for output
-     *
-     * @return Role
      */
-    protected function _initAction()
+    protected function _initAction(): Clear
     {
         $this->_view->loadLayout();
         $this->_setActiveMenu('VladFlonta_WebApiLog::logs');
@@ -126,12 +128,11 @@ class Clear extends \Magento\Backend\App\Action
      * @param string $paramName
      * @return array
      */
-    private function parseRequestVariable($paramName): array
+    private function parseRequestVariable(string $paramName): array
     {
         $value = $this->getRequest()->getParam($paramName, '');
         // phpcs:ignore Magento2.Functions.DiscouragedFunction
         parse_str($value, $value);
-        $value = array_keys($value);
-        return $value;
+        return array_keys($value);
     }
 }

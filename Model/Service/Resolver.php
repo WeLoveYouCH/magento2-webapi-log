@@ -8,25 +8,28 @@
 
 namespace VladFlonta\WebApiLog\Model\Service;
 
+use Magento\Framework\App\RequestInterface;
+use VladFlonta\WebApiLog\Model\Config;
+
 class Resolver
 {
     /** @var array */
-    protected $processedRequests = [];
+    protected array $processedRequests = [];
 
-    /** @var \Magento\Framework\App\RequestInterface */
-    protected $request;
+    /** @var RequestInterface */
+    protected RequestInterface $request;
 
-    /** @var \VladFlonta\WebApiLog\Model\Config */
-    protected $config;
+    /** @var Config */
+    protected Config $config;
 
     /**
      * Services constructor.
-     * @param \VladFlonta\WebApiLog\Model\Config $config
-     * @param \Magento\Framework\App\RequestInterface $request
+     * @param Config $config
+     * @param RequestInterface $request
      */
     public function __construct(
-        \VladFlonta\WebApiLog\Model\Config $config,
-        \Magento\Framework\App\RequestInterface $request
+        Config $config,
+        RequestInterface $request
     ) {
         $this->config = $config;
         $this->request = $request;
@@ -35,7 +38,7 @@ class Resolver
     /**
      * @return boolean
      */
-    public function isExcluded()
+    public function isExcluded(): bool
     {
         if (!isset($this->request)) {
             return true;
@@ -55,7 +58,7 @@ class Resolver
                     $matches = false;
                     break;
                 }
-                $variable = isset($variables[$key]) ? $variables[$key] : null;
+                $variable = $variables[$key] ?? null;
                 if (!$variable && $value != $routeParts[$key]) {
                     $matches = false;
                     break;
@@ -74,7 +77,7 @@ class Resolver
      * @param string $route
      * @return array
      */
-    protected function getRoutePartsAndVariables($route)
+    protected function getRoutePartsAndVariables(string $route): array
     {
         $result = [];
         $variables = [];

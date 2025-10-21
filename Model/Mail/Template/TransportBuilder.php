@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace VladFlonta\WebApiLog\Model\Mail\Template;
 
 use Laminas\Mime\Part;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\Mime;
 use Magento\Framework\Mail\AddressConverter;
 use Magento\Framework\Mail\EmailMessageInterfaceFactory;
@@ -12,9 +13,9 @@ use Magento\Framework\Mail\MessageInterface;
 use Magento\Framework\Mail\MessageInterfaceFactory;
 use Magento\Framework\Mail\MimeMessageInterfaceFactory;
 use Magento\Framework\Mail\MimePartInterfaceFactory;
-use Magento\Framework\Mail\TransportInterfaceFactory;
 use Magento\Framework\Mail\Template\FactoryInterface;
 use Magento\Framework\Mail\Template\SenderResolverInterface;
+use Magento\Framework\Mail\TransportInterfaceFactory;
 use Magento\Framework\ObjectManagerInterface;
 
 class TransportBuilder extends \Magento\Framework\Mail\Template\TransportBuilder
@@ -23,6 +24,9 @@ class TransportBuilder extends \Magento\Framework\Mail\Template\TransportBuilder
      * @var array
      */
     private array $attachments = [];
+    protected $message;
+    private $mimeMessageInterfaceFactory;
+    private $emailMessageInterfaceFactory;
 
     /**
      * TransportBuilder constructor
@@ -76,7 +80,7 @@ class TransportBuilder extends \Magento\Framework\Mail\Template\TransportBuilder
     /**
      * {@inheritdoc}
      */
-    public function reset()
+    public function reset(): TransportBuilder
     {
         parent::reset();
         $this->attachments = [];
@@ -111,10 +115,9 @@ class TransportBuilder extends \Magento\Framework\Mail\Template\TransportBuilder
     }
 
     /**
-     * @return \Magento\Framework\Mail\Template\TransportBuilder|void
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
-    protected function prepareMessage()
+    protected function prepareMessage(): TransportBuilder
     {
         parent::prepareMessage();
 

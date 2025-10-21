@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace VladFlonta\WebApiLog\Model;
 
-use VladFlonta\WebApiLog\Model\Mail\Template\TransportBuilder;
+use Exception;
 use Magento\Contact\Model\ConfigInterface;
 use Magento\Framework\App\Area;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -12,6 +12,7 @@ use Magento\Framework\Translate\Inline\StateInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
+use VladFlonta\WebApiLog\Model\Mail\Template\TransportBuilder;
 
 class Email
 {
@@ -25,11 +26,11 @@ class Email
      * @param LoggerInterface $logger
      */
     public function __construct(
-        protected ConfigInterface $contactsConfig,
-        protected TransportBuilder $transportBuilder,
-        protected StateInterface $inlineTranslation,
-        private readonly StoreManagerInterface $storeManager,
-        private readonly LoggerInterface $logger,
+        ConfigInterface $contactsConfig,
+        TransportBuilder $transportBuilder,
+        StateInterface $inlineTranslation,
+        StoreManagerInterface $storeManager,
+        LoggerInterface $logger
     ) {}
 
     /**
@@ -74,7 +75,7 @@ class Email
 
                 $transportBuilder->getTransport()->sendMessage();
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->debug("Error while sending email: " . $e->getMessage());
         }
     }

@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace VladFlonta\WebApiLog\Cron;
 
 use Exception;
+use Psr\Log\LoggerInterface;
 use VladFlonta\WebApiLog\Model\Config;
 use VladFlonta\WebApiLog\Model\Email;
 use VladFlonta\WebApiLog\Model\ResourceModel\WebApiError;
 use VladFlonta\WebApiLog\Model\ResourceModel\WebApiError\CollectionFactory;
-use Psr\Log\LoggerInterface;
 
 class SendEmail
 {
@@ -21,11 +21,11 @@ class SendEmail
      * @param WebApiError $webApiError
      */
     public function __construct(
-        private readonly CollectionFactory $collectionFactory,
-        private readonly LoggerInterface $logger,
-        private readonly Email $mail,
-        private readonly Config $config,
-        private readonly WebApiError $webApiError
+        CollectionFactory $collectionFactory,
+        LoggerInterface $logger,
+        Email $mail,
+        Config $config,
+        WebApiError $webApiError
     ) {
     }
 

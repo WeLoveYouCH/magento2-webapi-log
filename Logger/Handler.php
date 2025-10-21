@@ -8,6 +8,8 @@
 
 namespace VladFlonta\WebApiLog\Logger;
 
-class Handler extends \Monolog\Logger
+use Monolog\Logger;
+
+class Handler extends Logger
 {
 }

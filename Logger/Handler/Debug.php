@@ -8,37 +8,44 @@
 
 namespace VladFlonta\WebApiLog\Logger\Handler;
 
+use LogicException;
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Filesystem;
+use Magento\Framework\Filesystem\DriverInterface;
+use VladFlonta\WebApiLog\Model\Config;
+
 class Debug extends \Magento\Framework\Logger\Handler\Debug
 {
     /** @var string */
-    private $errorMessage;
+    private ?string $errorMessage;
 
     /** @var string */
     protected $fileName = '';
 
     /**
-     * @param \VladFlonta\WebApiLog\Model\Config $config
-     * @param \Magento\Framework\Filesystem\DriverInterface $filesystem
-     * @param \Magento\Framework\Filesystem $fileSystem
-     * @param string $filePath
-     * @param string $fileName
+     * @param Config $config
+     * @param DriverInterface $filesystem
+     * @param Filesystem $fileSystem
+     * @param null $filePath
+     * @param null $fileName
      */
     public function __construct(
-        \VladFlonta\WebApiLog\Model\Config $config,
-        \Magento\Framework\Filesystem\DriverInterface $filesystem,
-        \Magento\Framework\Filesystem $fileSystem,
+        Config $config,
+        DriverInterface $filesystem,
+        Filesystem $fileSystem,
         $filePath = null,
         $fileName = null
     ) {
         $filePath = $fileSystem
-                ->getDirectoryRead(\Magento\Framework\App\Filesystem\DirectoryList::LOG)
+                ->getDirectoryRead(DirectoryList::LOG)
                 ->getAbsolutePath() . $config->getSavePath();
         parent::__construct($filesystem, $filePath, '');
     }
 
     /**
      * @param array $record
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     protected function write(array $record): void
     {
@@ -56,7 +63,7 @@ class Debug extends \Magento\Framework\Logger\Handler\Debug
         );
 
         if (!$url) {
-            throw new \LogicException('Missing stream url, the stream can not be opened.');
+            throw new LogicException('Missing stream url, the stream can not be opened.');
         }
 
         $logDir = $this->filesystem->getParentDirectory($url);
@@ -72,7 +79,7 @@ class Debug extends \Magento\Framework\Logger\Handler\Debug
         }
         restore_error_handler();
         if (!is_resource($stream)) {
-            throw new \Magento\Framework\Exception\LocalizedException(
+            throw new LocalizedException(
                 __('The stream or file "%1" could not be opened: %2', $url, $this->errorMessage)
             );
         }
@@ -98,9 +105,7 @@ class Debug extends \Magento\Framework\Logger\Handler\Debug
             flock($stream, LOCK_UN);
         }
 
-        if (is_resource($stream)) {
-            fclose($stream);
-        }
+        fclose($stream);
     }
 
     /**

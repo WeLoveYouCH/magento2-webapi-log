@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace VladFlonta\WebApiLog\Model\ResourceModel\WebApiError;
 
-use DateTime;
+use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 use VladFlonta\WebApiLog\Model\ResourceModel\WebApiError as ResourceModel;
 use VladFlonta\WebApiLog\Model\WebApiError as Model;
-use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 
 class Collection extends AbstractCollection
 {

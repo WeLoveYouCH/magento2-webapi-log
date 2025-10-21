@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace VladFlonta\WebApiLog\Model;
 
-use VladFlonta\WebApiLog\Model\ResourceModel\WebApiError as WebApiErrorResourceModel;
 use Magento\Framework\Model\AbstractModel;
+use VladFlonta\WebApiLog\Model\ResourceModel\WebApiError as WebApiErrorResourceModel;
 
 class WebApiError extends AbstractModel
 {

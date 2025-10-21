@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace VladFlonta\WebApiLog\Model\ResourceModel;
 
-use VladFlonta\WebApiLog\Api\Data\WebApiErrorInterface;
 use Magento\Framework\EntityManager\MetadataPool;
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 use Magento\Framework\Model\ResourceModel\Db\Context;
+use VladFlonta\WebApiLog\Api\Data\WebApiErrorInterface;
 
 class WebApiError extends AbstractDb
 {
@@ -72,7 +72,7 @@ class WebApiError extends AbstractDb
     public function updateData(array $data, int $entityId): void
     {
         $connection = $this->getConnection();
-        $where = ['entity_id = ?' => (int)$entityId];
+        $where = ['entity_id = ?' => $entityId];
 
         $connection->update(self::DB_TABLE, $data, $where);
     }

@@ -8,54 +8,68 @@
 
 namespace VladFlonta\WebApiLog\Plugin\Rest;
 
-use Magento\Integration\Api\OauthServiceInterface;
-use Magento\Integration\Api\IntegrationServiceInterface;
+use Exception;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\MessageQueue\PublisherInterface;
+use Magento\Framework\Webapi\Rest\Response;
+use Magento\Framework\Webapi\Rest\Response\Proxy;
+use Magento\Integration\Api\IntegrationServiceInterface;
+use Magento\Integration\Api\OauthServiceInterface;
+use Magento\Integration\Model\Integration;
+use Magento\Integration\Model\Oauth\Consumer;
+use Magento\Webapi\Controller\Rest;
+use Psr\Log\LoggerInterface;
+use VladFlonta\WebApiLog\Logger\Handler;
+use VladFlonta\WebApiLog\Model\Config;
+use VladFlonta\WebApiLog\Model\Service\Resolver;
+use Magento\Framework\App\ResponseInterface;
 
 class Api
 {
-    /** @var \VladFlonta\WebApiLog\Logger\Handler */
-    protected $apiLogger;
+    /** @var Handler */
+    protected Handler $apiLogger;
 
-    /** @var \VladFlonta\WebApiLog\Model\Config */
-    protected $config;
+    /** @var Config */
+    protected Config $config;
 
-    /** @var \Psr\Log\LoggerInterface */
-    protected $logger;
+    /** @var LoggerInterface */
+    protected LoggerInterface $logger;
 
     /** @var array */
-    protected $currentRequest;
+    protected array $currentRequest;
 
-    /** @var \Magento\Framework\App\RequestInterface */
-    protected $request;
+    /** @var RequestInterface */
+    protected RequestInterface $request;
 
-    /** @var \VladFlonta\WebApiLog\Model\Service\Resolver */
-    protected $serviceResolver;
+    /** @var Resolver */
+    protected Resolver $serviceResolver;
 
     /** @var OauthServiceInterface */
-    protected $oauthService;
+    protected OauthServiceInterface $oauthService;
 
     /** @var IntegrationServiceInterface */
-    protected $integrationService;
+    protected IntegrationServiceInterface $integrationService;
 
     /** @var PublisherInterface */
-    private  $publisher;
+    private PublisherInterface $publisher;
 
     /**
      * Rest constructor.
-     * @param \Psr\Log\LoggerInterface $logger
-     * @param \VladFlonta\WebApiLog\Model\Config $config
-     * @param \VladFlonta\WebApiLog\Logger\Handler $apiLogger
-     * @param \Magento\Framework\App\RequestInterface $request
-     * @param \VladFlonta\WebApiLog\Model\Service\Resolver $serviceResolver
-     *  @param PublisherInterface $publisher
+     * @param LoggerInterface $logger
+     * @param Config $config
+     * @param Handler $apiLogger
+     * @param RequestInterface $request
+     * @param Resolver $serviceResolver
+     * @param OauthServiceInterface $oauthServiceInterface
+     * @param IntegrationServiceInterface $integrationServiceInterface
+     * @param PublisherInterface $publisher
      */
     public function __construct(
-        \Psr\Log\LoggerInterface $logger,
-        \VladFlonta\WebApiLog\Model\Config $config,
-        \VladFlonta\WebApiLog\Logger\Handler $apiLogger,
-        \Magento\Framework\App\RequestInterface $request,
-        \VladFlonta\WebApiLog\Model\Service\Resolver $serviceResolver,
+        LoggerInterface $logger,
+        Config $config,
+        Handler $apiLogger,
+        RequestInterface $request,
+        Resolver $serviceResolver,
         OauthServiceInterface $oauthServiceInterface,
         IntegrationServiceInterface $integrationServiceInterface,
         PublisherInterface $publisher
@@ -71,15 +85,15 @@ class Api
     }
 
     /**
-     * @param \Magento\Webapi\Controller\Rest $subject
+     * @param Rest $subject
      * @param callable $proceed
-     * @param \Magento\Framework\App\RequestInterface $request
+     * @param RequestInterface $request
      * @return mixed
      */
     public function aroundDispatch(
-        \Magento\Webapi\Controller\Rest $subject,
+        Rest $subject,
         callable $proceed,
-        \Magento\Framework\App\RequestInterface $request
+        RequestInterface $request
     ) {
         if (!$this->config->getEnable() || $this->serviceResolver->isExcluded()) {
             return $proceed($request);
@@ -120,7 +134,7 @@ class Api
             $currentRequest['body'] = $this->currentRequest['is_auth'] ?
                 'Request body is not available for authorization requests.' :
                 $request->getContent();
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $this->logger->debug(sprintf(
                 'Exception when logging API request: %s (%s::%s)',
                 $exception->getMessage(),
@@ -133,12 +147,12 @@ class Api
     }
 
     /**
-     * @param \Magento\Framework\Webapi\Rest\Response $subject
+     * @param Response $subject
      * @param $result
      * @return mixed
      */
     public function afterSendResponse(
-        \Magento\Framework\Webapi\Rest\Response $subject,
+        Response $subject,
         $result
     ) {
         if (!$this->config->getEnable() || $this->serviceResolver->isExcluded()) {
@@ -155,7 +169,7 @@ class Api
             $this->currentRequest['end'] = microtime(true);
             $this->currentRequest['time'] = $this->currentRequest['end'] - $this->currentRequest['start'];
             $this->apiLogger->debug('', $this->currentRequest);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $this->logger->debug('Exception when logging API response: ' . $exception->getMessage());
         }
 
@@ -166,15 +180,16 @@ class Api
      * Plugin after REST API dispatch - send email after exception
      *
      * @param Rest $subject
-     * @param ResponseInterface $result
+     * @param Proxy $result
      * @param RequestInterface $request
      * @return ResponseInterface
-     */
+      */
     public function afterDispatch(
         Rest $subject,
-        ResponseInterface $result,
+        Proxy $result,
         RequestInterface $request
-    ): ResponseInterface {
+    ): ResponseInterface
+    {
         if (!$this->config->isEmailNotificationEnabled() || $this->serviceResolver->isExcluded()) {
             return $result;
         }
@@ -207,16 +222,16 @@ class Api
      * @param string $path
      * @return bool
      */
-    protected function isAuthorizationRequest($path)
+    protected function isAuthorizationRequest(string $path): bool
     {
         return preg_match('/integration\/(admin|customer)\/token/', $path) !== 0;
     }
 
     /**
-     * @param array<mixed> $requestHeader
+     * @param array $requestHeader
      * @return string
      */
-    protected function getIntegrationName($requestHeader)
+    protected function getIntegrationName(array $requestHeader): string
     {
         if(!$this->config->isIntegrationNameEnabled()){
             return '';
@@ -227,7 +242,7 @@ class Api
         try{
             $data = explode(',', $requestHeader['data']);
             $data = array_map(function($keyValue){
-                list($key, $value) = explode('=', $keyValue);
+                list($key, $value) = array_pad(explode('=', $keyValue, 2), 2, '');
                 return [
                     'key' => $key,
                     'value' => trim($value, '"')
@@ -237,14 +252,16 @@ class Api
                 array_column($data, 'key'),
                 array_column($data, 'value')
             );
-            $consumerKey = $data['oauth_consumer_key'];
-            /** @var \Magento\Integration\Model\Oauth\Consumer $consumer */
+            if (isset($data['oauth_consumer_key'])) {
+                $consumerKey = $data['oauth_consumer_key'];
+            } else {
+                return '';
+            }
             $consumer = $this->oauthService->loadConsumerByKey($consumerKey);
-            /** @var \Magento\Integration\Model\Integration $integration */
             $integration = $this->integrationService->findByConsumerId($consumer->getId());
 
             return ' ('.$integration->getName().')';
-        }catch(\Exception $e){
+        }catch(Exception $e){
             $this->logger->error($e->getMessage(), ['request_header' => $requestHeader]);
             return '';
         }

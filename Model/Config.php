@@ -8,6 +8,8 @@
 
 namespace VladFlonta\WebApiLog\Model;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
+
 class Config
 {
     const XML_PATH_WEBAPI_LOGGER = 'webapi/logger/';
@@ -15,15 +17,15 @@ class Config
     const XML_PATH_EMAIL_RECIPIENTS = 'webapi/email_notifier/recipients';
     const XML_PATH_EMAIL_TEMPLATE = 'webapi/email_notifier/email_template';
 
-    /** @var \Magento\Framework\App\Config\ScopeConfigInterface */
-    protected $scopeConfig;
+    /** @var ScopeConfigInterface */
+    protected ScopeConfigInterface $scopeConfig;
 
     /**
      * Config constructor.
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->scopeConfig = $scopeConfig;
     }
@@ -31,7 +33,7 @@ class Config
     /**
      * @return array
      */
-    public function getExcludeServices()
+    public function getExcludeServices(): array
     {
         return array_filter(explode(
             ',',
@@ -42,7 +44,7 @@ class Config
     /**
      * @return string
      */
-    public function getSavePath()
+    public function getSavePath(): string
     {
         return $this->scopeConfig->getValue(self::XML_PATH_WEBAPI_LOGGER.'save_path', 'store');
     }
@@ -50,7 +52,7 @@ class Config
     /**
      * @return int
      */
-    public function getKeepDays()
+    public function getKeepDays(): int
     {
         return (int)$this->scopeConfig->getValue(self::XML_PATH_WEBAPI_LOGGER.'keep_days', 'store');
     }
@@ -58,7 +60,7 @@ class Config
     /**
      * @return int
      */
-    public function getFolderDepth()
+    public function getFolderDepth(): int
     {
         return (int)$this->scopeConfig->getValue(self::XML_PATH_WEBAPI_LOGGER.'folder_depth', 'store');
     }
@@ -66,7 +68,7 @@ class Config
     /**
      * @return boolean
      */
-    public function getEnable()
+    public function getEnable(): bool
     {
         return (bool) $this->scopeConfig->getValue(self::XML_PATH_WEBAPI_LOGGER.'enable', 'store');
     }
@@ -76,7 +78,7 @@ class Config
      *
      * @return bool
      */
-    public function isEmailNotificationEnabled()
+    public function isEmailNotificationEnabled(): bool
     {
         return $this->scopeConfig->isSetFlag(self::XML_PATH_NOTIFICATION_ENABLED);
     }
@@ -86,7 +88,7 @@ class Config
      *
      * @return array
      */
-    public function getEmailRecipients()
+    public function getEmailRecipients(): array
     {
         return explode(PHP_EOL, $this->scopeConfig->getValue(self::XML_PATH_EMAIL_RECIPIENTS));
     }
@@ -96,7 +98,7 @@ class Config
      *
      * @return string
      */
-    public function getEmailTemplate()
+    public function getEmailTemplate(): string
     {
         return $this->scopeConfig->getValue(self::XML_PATH_EMAIL_TEMPLATE);
     }
@@ -104,7 +106,7 @@ class Config
     /**
      * @return boolean
      */
-    public function isIntegrationNameEnabled()
+    public function isIntegrationNameEnabled(): bool
     {
         return (bool)$this->scopeConfig->getValue(self::XML_PATH_WEBAPI_LOGGER.'enable_integration_name', 'store');
     }

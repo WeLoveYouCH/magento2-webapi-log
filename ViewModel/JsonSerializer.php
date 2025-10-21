@@ -9,13 +9,14 @@ declare(strict_types=1);
 namespace VladFlonta\WebApiLog\ViewModel;
 
 use Magento\Framework\Serialize\Serializer\JsonHexTag;
+use Magento\Framework\View\Element\Block\ArgumentInterface;
 
-class JsonSerializer implements \Magento\Framework\View\Element\Block\ArgumentInterface
+class JsonSerializer implements ArgumentInterface
 {
     /**
      * @var JsonHexTag
      */
-    private $serializer;
+    private JsonHexTag $serializer;
 
     /**
      * @param JsonHexTag $serializer

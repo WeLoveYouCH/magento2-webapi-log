@@ -7,7 +7,10 @@
 
 namespace VladFlonta\WebApiLog\Block\Adminhtml\Edit;
 
-class Form extends \Magento\Backend\Block\Widget\Form\Generic
+use Magento\Backend\Block\Widget\Form\Generic;
+use Magento\Framework\Exception\LocalizedException;
+
+class Form extends Generic
 {
 
     /**
@@ -26,10 +29,10 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
      * Prepare form data
      *
      * @return \Magento\Backend\Block\Widget\Form
+     * @throws LocalizedException
      */
-    protected function _prepareForm()
+    protected function _prepareForm(): \Magento\Backend\Block\Widget\Form
     {
-        /** @var \Magento\Framework\Data\Form $form */
         $form = $this->_formFactory->create(
             ['data' => [
                 'id' => 'edit_form',
@@ -41,7 +44,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         );
 
         $fieldset = $form->addFieldset('base_fieldset', ['legend' => __('Existing API logs')]);
-        
+
         $fieldset->addField('keep_logs', 'hidden', ['name' => 'keep_logs']);
 
         $field = $fieldset->addField('tree', 'text', ['name' => 'resource_tree']);

@@ -7,14 +7,21 @@
 
 namespace VladFlonta\WebApiLog\Block\Adminhtml;
 
-class Logs extends \Magento\Backend\Block\Widget\Form\Container
+use Magento\Backend\Block\Widget\Context;
+use Magento\Backend\Block\Widget\Form\Container;
+use VladFlonta\WebApiLog\Model\Config;
+
+class Logs extends Container
 {
 
-    protected $_config;
+    protected Config $_config;
+    protected $_controller;
+    protected $_blockGroup;
+    protected $_objectId;
 
     public function __construct(
-        \Magento\Backend\Block\Widget\Context $context,
-        \VladFlonta\WebApiLog\Model\Config $config,
+        Context $context,
+        Config $config,
         array $data = []
     ) {
         $this->_config = $config;
@@ -27,7 +34,7 @@ class Logs extends \Magento\Backend\Block\Widget\Form\Container
         $this->_objectId = 'id';
         $this->_blockGroup = 'VladFlonta_WebApiLog';
         $this->_controller = 'adminhtml';
-        
+
         parent::_construct();
 
         $this->buttonList->update('save','label', __('Delete Logs'));

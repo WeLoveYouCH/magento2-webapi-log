@@ -24,7 +24,7 @@ class Index extends Action
      *
      * @var PageFactory
      */
-    public $resultPageFactory;
+    public PageFactory $resultPageFactory;
 
     /**
      * Index constructor.
@@ -46,7 +46,7 @@ class Index extends Action
      *
      * @return Page
      */
-    public function execute()
+    public function execute(): Page
     {
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(__('Web API Rest Logs'));
@@ -59,7 +59,7 @@ class Index extends Action
      *
      * @return boolean
      */
-    public function _isAllowed()
+    public function _isAllowed(): bool
     {
         return $this->_authorization->isAllowed('VladFlonta_WebApiLog::logs');
     }
