@@ -1,16 +1,24 @@
 {
     "name": "vladflonta/magento2-webapi-log",
     "description": "Logger for webapi REST requests.",
-    "authors":[{
-        "name": "Vlad Flonta",
-        "homepage": "https://github.com/vladflonta"
-    }],
+    "authors":[
+        {
+            "name": "Vlad Flonta",
+            "homepage": "https://github.com/vladflonta"
+        },
+        {
+            "name": "Philippe Aellig",
+            "homepage": "https://github.com/WeLoveYouCH",
+            "role": "Developer, WeLoveYou AG"
+        }
+    ],
     "require": {
-        "magento/framework": "^103.0.4",
-        "magento/module-webapi": ">=100.0.2"
+        "php": ">=7.4.0",
+        "magento/framework": ">=103.0.5",
+        "magento/module-webapi": ">=100.4.4"
     },
     "type": "magento2-module",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "license": "OSL-3.0",
     "autoload": {
         "files": [
