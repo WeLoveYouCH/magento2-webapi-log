@@ -24,9 +24,11 @@ class TransportBuilder extends \Magento\Framework\Mail\Template\TransportBuilder
      * @var array
      */
     private array $attachments = [];
-    protected $message;
-    private $mimeMessageInterfaceFactory;
-    private $emailMessageInterfaceFactory;
+
+    private EmailMessageInterfaceFactory $emailMessageInterfaceFactory;
+    private MimeMessageInterfaceFactory $mimeMessageInterfaceFactory;
+    private MimePartInterfaceFactory $mimePartInterfaceFactory;
+    private AddressConverter $addressConverter;
 
     /**
      * TransportBuilder constructor
@@ -37,10 +39,10 @@ class TransportBuilder extends \Magento\Framework\Mail\Template\TransportBuilder
      * @param ObjectManagerInterface $objectManager
      * @param TransportInterfaceFactory $mailTransportFactory
      * @param MessageInterfaceFactory|null $messageFactory
-     * @param null $emailMessageInterfaceFactory
-     * @param null $mimeMessageInterfaceFactory
-     * @param null $mimePartInterfaceFactory
-     * @param null $addressConverter
+     * @param EmailMessageInterfaceFactory|null $emailMessageInterfaceFactory
+     * @param MimeMessageInterfaceFactory|null $mimeMessageInterfaceFactory
+     * @param MimePartInterfaceFactory|null $mimePartInterfaceFactory
+     * @param AddressConverter|null $addressConverter
      */
     public function __construct(
         FactoryInterface $templateFactory,
@@ -49,10 +51,10 @@ class TransportBuilder extends \Magento\Framework\Mail\Template\TransportBuilder
         ObjectManagerInterface $objectManager,
         TransportInterfaceFactory $mailTransportFactory,
         MessageInterfaceFactory $messageFactory = null,
-        $emailMessageInterfaceFactory = null,
-        $mimeMessageInterfaceFactory = null,
-        $mimePartInterfaceFactory = null,
-        $addressConverter = null
+        EmailMessageInterfaceFactory $emailMessageInterfaceFactory = null,
+        MimeMessageInterfaceFactory $mimeMessageInterfaceFactory = null,
+        MimePartInterfaceFactory $mimePartInterfaceFactory = null,
+        AddressConverter $addressConverter = null
     ) {
         parent::__construct(
             $templateFactory,
