@@ -123,7 +123,12 @@ class TransportBuilder extends \Magento\Framework\Mail\Template\TransportBuilder
     {
         parent::prepareMessage();
 
-        $parts = $this->message->getBody()->getParts();
+        $body = $this->message->getBody();
+        if (method_exists($body, 'getParts')) {
+            $parts = $body->getParts();
+        } else {
+            $parts = [$body];
+        }
         $parts = array_merge($parts, $this->attachments);
         $messageData = [
             'encoding' => $this->message->getEncoding(),
