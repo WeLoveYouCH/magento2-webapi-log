@@ -130,8 +130,9 @@ class TransportBuilder extends \Magento\Framework\Mail\Template\TransportBuilder
             $parts = [$body];
         }
         $parts = array_merge($parts, $this->attachments);
+        $encoding = $this->message->getEncoding();
         $messageData = [
-            'encoding' => $this->message->getEncoding(),
+            'encoding' => $encoding ?: 'utf-8',
             'subject' => $this->message->getSubject(),
             'sender' => $this->message->getSender(),
             'to' => $this->message->getTo(),
